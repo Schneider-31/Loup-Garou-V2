@@ -1,12 +1,14 @@
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Crown, Users, Moon, Sparkles } from 'lucide-react';
+import { Crown, Users, Moon, Sparkles, RotateCcw } from 'lucide-react';
 
 interface HomeScreenProps {
   onHost: () => void;
   onJoin: () => void;
+  /** Shown when this device still has a room (host) or a card (player) saved. */
+  resume?: { kind: 'host' | 'player'; onResume: () => void };
 }
 
-export function HomeScreen({ onHost, onJoin }: HomeScreenProps) {
+export function HomeScreen({ onHost, onJoin, resume }: HomeScreenProps) {
   const { t, dir } = useLanguage();
 
   return (
@@ -29,6 +31,18 @@ export function HomeScreen({ onHost, onJoin }: HomeScreenProps) {
 
       {/* Choice cards */}
       <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+        {resume && (
+          <button
+            onClick={resume.onResume}
+            className="w-full flex items-center gap-3 rounded-2xl border border-forest-500/40 bg-forest-700/20 p-4 text-start transition-all hover:border-forest-500/70 active:scale-[0.98]"
+          >
+            <RotateCcw className="w-5 h-5 text-forest-500 shrink-0" strokeWidth={1.5} />
+            <span className="text-sm font-medium text-ash-100">
+              {resume.kind === 'host' ? t('resumeHost') : t('resumePlayer')}
+            </span>
+          </button>
+        )}
+
         <button
           onClick={onHost}
           className="group w-full relative overflow-hidden rounded-2xl border border-gold-600/30 bg-gradient-to-br from-mystery-800 to-mystery-900 p-5 text-start transition-all hover:border-gold-500/50 hover:glow-gold active:scale-[0.98]"

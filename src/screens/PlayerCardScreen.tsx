@@ -3,6 +3,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/lib/supabase';
 import { getRoleByKey, makeCustomRole } from '@/data/roles';
 import type { Player, Room } from '@/types';
+import { clearSession } from '@/lib/session';
 import {
   Loader2,
   Eye,
@@ -27,20 +28,29 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
   const [holding, setHolding] = useState(false);
   const [seenOnce, setSeenOnce] = useState(false);
   const holdTimerRef = useRef<number | null>(null);
+
+  // Keep the latest onLeave in a ref so loadData does not change on every render.
+  const onLeaveRef = useRef(onLeave);
+  onLeaveRef.current = onLeave;
   const progressRef = useRef<HTMLDivElement>(null);
 
   // Load player and room data, then poll as a fallback in case realtime drops.
   // Realtime is the primary sync mechanism; polling ensures recovery if the
   // websocket disconnects or events are missed.
   const loadData = useCallback(async () => {
-    const { data: playerData } = await supabase
+    const { data: playerData, error: playerError } = await supabase
       .from('players')
       .select('*')
       .eq('id', playerId)
-      .single();
+      .maybeSingle();
     if (playerData) {
       setPlayer(playerData as Player);
       setSeenOnce((playerData as Player).has_seen_card);
+    } else if (!playerError) {
+      // The row is gone (host removed us or closed the room): go back to Home.
+      clearSession();
+      onLeaveRef.current();
+      return;
     }
 
     const { data: roomData } = await supabase
@@ -132,6 +142,7 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
 
   const handleLeave = async () => {
     await supabase.from('players').delete().eq('id', playerId);
+    clearSession();
     onLeave();
   };
 

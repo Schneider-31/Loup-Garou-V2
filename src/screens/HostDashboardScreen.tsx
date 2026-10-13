@@ -18,6 +18,7 @@ import {
   CheckCheck,
 } from 'lucide-react';
 import { CustomRoleBuilder } from '@/components/CustomRoleBuilder';
+import { clearSession } from '@/lib/session';
 
 interface HostDashboardScreenProps {
   roomId: string;
@@ -248,7 +249,19 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
   const handleCloseRoom = async () => {
     await supabase.from('players').delete().eq('room_id', roomId);
     await supabase.from('rooms').delete().eq('id', roomId);
+    clearSession();
     onBack();
+  };
+
+  // Lets the host remove a player (typo in the name, someone who left, etc.).
+  const handleKick = async (playerId: string) => {
+    if (!window.confirm(t('kickConfirm'))) return;
+    const { error: kickError } = await supabase.from('players').delete().eq('id', playerId);
+    if (kickError) {
+      setError(kickError.message);
+      return;
+    }
+    loadPlayers();
   };
 
   const copyCode = () => {
@@ -339,6 +352,14 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
                       {roleDef.icon && <roleDef.icon className="w-3.5 h-3.5" />}
                     </span>
                   )}
+                  <button
+                    onClick={() => handleKick(player.id)}
+                    title={t('kickPlayer')}
+                    aria-label={t('kickPlayer')}
+                    className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-ash-500 transition-all hover:text-blood-300 hover:bg-blood-900/30 active:scale-95"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               );
             })}

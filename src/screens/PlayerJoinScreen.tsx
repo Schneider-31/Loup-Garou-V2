@@ -3,6 +3,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/lib/supabase';
 import { ArrowLeft, Loader2, KeyRound, User as UserIcon } from 'lucide-react';
 import type { Room } from '@/types';
+import { loadSession } from '@/lib/session';
 
 interface PlayerJoinScreenProps {
   onBack: () => void;
@@ -89,47 +90,65 @@ export function PlayerJoinScreen({ onBack, onJoined }: PlayerJoinScreenProps) {
 
       const roomData = room as Room;
 
-      // Check if player with same name already exists in this room
-      const { data: existing } = await supabase
-        .from('players')
-        .select('id')
-        .eq('room_id', roomData.id)
-        .eq('name', name.trim())
-        .maybeSingle();
+      // Normalize the typed name: trim + collapse inner spaces.
+      const cleanName = name.trim().replace(/\s+/g, ' ');
+      const cleanLower = cleanName.toLowerCase();
 
-      if (existing) {
-        // Re-join as existing player
-        onJoined(roomData.id, existing.id);
+      // Is this device already holding a seat in this room? (page refresh case)
+      const saved = loadSession();
+      const savedPlayerId =
+        saved && saved.role === 'player' && saved.roomId === roomData.id
+          ? saved.playerId
+          : null;
+
+      // Who is already in the room?
+      const { data: roster, error: rosterError } = await supabase
+        .from('players')
+        .select('id, name')
+        .eq('room_id', roomData.id);
+      if (rosterError) throw rosterError;
+
+      const sameName = (roster ?? []).find(
+        (p) => p.name.trim().toLowerCase() === cleanLower
+      );
+
+      if (sameName) {
+        if (savedPlayerId && sameName.id === savedPlayerId) {
+          // Same device, same name: this is the same player coming back.
+          onJoined(roomData.id, sameName.id);
+          return;
+        }
+        // Someone else already uses this name: do NOT hand over their card.
+        setError(t('nameTaken'));
+        setLoading(false);
         return;
       }
 
-      // Create new player. If a duplicate-name race occurs (unique constraint on
-      // room_id + name), the insert will fail — fall back to selecting the existing row.
+      // New players can only join before the cards are dealt.
+      if (roomData.status !== 'waiting') {
+        setError(t('gameStarted'));
+        setLoading(false);
+        return;
+      }
+
       const { data: player, error: insertError } = await supabase
         .from('players')
         .insert({
           room_id: roomData.id,
-          name: name.trim(),
+          name: cleanName,
           language: lang,
         })
         .select('id')
         .single();
 
       if (insertError || !player) {
-        // Race condition: another client with the same name inserted first.
-        // Re-query and rejoin as that player instead of failing.
-        const { data: existingPlayer } = await supabase
-          .from('players')
-          .select('id')
-          .eq('room_id', roomData.id)
-          .eq('name', name.trim())
-          .maybeSingle();
-
-        if (existingPlayer) {
-          onJoined(roomData.id, existingPlayer.id);
+        // 23505 = unique violation: another phone took the same name a moment ago.
+        if (insertError && insertError.code === '23505') {
+          setError(t('nameTaken'));
+          setLoading(false);
           return;
         }
-        throw new Error('Failed to join');
+        throw insertError ?? new Error('Failed to join');
       }
 
       onJoined(roomData.id, player.id);
