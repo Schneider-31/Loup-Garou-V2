@@ -65,6 +65,12 @@ export const translations = {
     nameRequired: 'الرجاء إدخال الاسم',
     invalidCode: 'الرمز غير صحيح',
     alreadyJoined: 'انضممت بالفعل',
+    nameTaken: 'هذا الاسم مستعمل في الغرفة، اختر اسماً آخر',
+    gameStarted: 'اللعبة بدأت بالفعل. اطلب من المسير إعادة التوزيع ثم حاول من جديد',
+    resumeHost: 'العودة إلى غرفتي',
+    resumePlayer: 'العودة إلى بطاقتي',
+    kickPlayer: 'إزالة اللاعب',
+    kickConfirm: 'إزالة هذا اللاعب من الغرفة؟',
 
     // Player card
     waitingForDeal: 'في انتظار توزيع البطاقات...',
@@ -168,6 +174,12 @@ export const translations = {
     nameRequired: 'Veuillez entrer votre nom',
     invalidCode: 'Code invalide',
     alreadyJoined: 'Déjà rejoint',
+    nameTaken: 'Ce nom est déjà pris dans la salle, choisissez-en un autre',
+    gameStarted: "La partie a déjà commencé. Demandez au Maître de redistribuer puis réessayez",
+    resumeHost: 'Retourner à ma salle',
+    resumePlayer: 'Retourner à ma carte',
+    kickPlayer: 'Retirer le joueur',
+    kickConfirm: 'Retirer ce joueur de la salle ?',
 
     // Player card
     waitingForDeal: 'En attente de la distribution des cartes...',
