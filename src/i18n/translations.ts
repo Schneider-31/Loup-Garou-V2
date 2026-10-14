@@ -101,6 +101,14 @@ export const translations = {
       loup_blanc: 'ذئب خاص. يقتل لاعباً إضافياً في الليل دون علم باقي الذئاب.',
       cupidon: 'يربط قلبين بالحب الأبدي من أول ليلة.',
     },
+    nightInstructions: {
+      cupidon: 'يستيقظ ويختار لاعبَين ليكونا عاشقَين، ثم يغمض عينيه. اجعل العاشقَين يفتحان أعينهما لحظة ليتعارفا ثم يغمضانها.',
+      protecteur: 'يستيقظ ويختار لاعباً يحميه هذه الليلة (لا يحمي نفس اللاعب ليلتين متتاليتين)، ثم يغمض عينيه.',
+      voyante: 'تستيقظ وتشير إلى لاعب، فتريها دوره بإشارة من يدك، ثم تغمض عينيها.',
+      loup_garou: 'يستيقظ الذئاب ويتفقون بصمت على ضحية، ثم يغمضون أعينهم.',
+      loup_blanc: 'يستيقظ (كل ليلة زوجية فقط): له أن يقضي على أحد الذئاب أو يترك الأمر، ثم يغمض عينيه.',
+      sorciere: 'تستيقظ: أرها ضحية الذئاب، فتقرر هل تستعمل جرعة الحياة أو الموت أو لا شيء، ثم تغمض عينيها.',
+    },
 
     // Footer
     directedBy: 'إخراج Schneider_31',
@@ -109,6 +117,36 @@ export const translations = {
     waiting: 'انتظار',
     statusDealing: 'توزيع',
     dealt: 'تم التوزيع',
+
+    // Game control (host tools)
+    gameControl: 'سير اللعبة',
+    nightN: 'الليلة {n}',
+    dayN: 'النهار {n}',
+    lobbyWaiting: 'تم توزيع الأوراق. ابدأ اللعبة عندما يكون الجميع جاهزاً',
+    startNight: 'ابدأ الليلة {n}',
+    startDay: 'ابدأ النهار',
+    statWolves: 'الذئاب',
+    statVillage: 'القرية',
+    statAlive: 'الأحياء',
+    aliveNow: 'الأحياء الآن',
+    winVillage: 'يبدو أن فريق القرية فاز (مؤشر فقط)',
+    winWolves: 'يبدو أن الذئاب فازت (مؤشر فقط)',
+    nightGuideTitle: 'دليل الليل',
+    nightGuideHint: 'نادِ الأدوار بالترتيب، واضغط على كل خطوة بعد أن تنهيها',
+    nightGuideDone: 'نوديت كل الأدوار. اضغط «ابدأ النهار»',
+    nightGuideEmpty: 'لا يوجد دور تناديه هذه الليلة. اضغط «ابدأ النهار»',
+    customRolesNote: 'أدوار مخصصة: رتّبها حسب قواعدك',
+    dayGuideTitle: 'النهار',
+    dayGuide: 'أعلن من مات في الليل، ثم النقاش والتصويت. علّم المقصيين بزر الجمجمة في القائمة.',
+    eliminate: 'إقصاء',
+    revive: 'إعادة للحياة',
+    deadLabel: 'مقصى',
+    diedTitle: 'تم إقصاؤك',
+    diedDesc: 'تابع اللعبة بصمت، ولا تكشف دورك إلا إذا طلب المسير ذلك',
+    playerNight: 'الليلة {n}: أغمض عينيك',
+    playerDay: 'النهار {n}: افتح عينيك',
+    feedbackOn: 'الصوت والاهتزاز: مفعّلان',
+    feedbackOff: 'الصوت والاهتزاز: متوقفان',
   },
   fr: {
     // App
@@ -210,6 +248,14 @@ export const translations = {
       loup_blanc: 'Loup spécial. Tue un joueur supplémentaire la nuit à l\'insu des autres loups.',
       cupidon: 'Unit deux cœurs par un amour éternel dès la première nuit.',
     },
+    nightInstructions: {
+      cupidon: 'Se réveille et désigne deux amoureux, puis se rendort. Les amoureux ouvrent les yeux un instant pour se reconnaître.',
+      protecteur: 'Se réveille et désigne un joueur à protéger cette nuit (pas deux nuits de suite le même), puis se rendort.',
+      voyante: 'Se réveille et désigne un joueur ; montrez-lui son rôle d’un geste, puis elle se rendort.',
+      loup_garou: 'Les loups se réveillent, désignent une victime en silence, puis se rendorment.',
+      loup_blanc: 'Se réveille (une nuit sur deux seulement) : il peut éliminer un autre loup, ou personne, puis se rendort.',
+      sorciere: 'Se réveille : montrez-lui la victime des loups ; elle choisit sa potion de vie, de mort, ou rien, puis se rendort.',
+    },
 
     // Footer
     directedBy: 'Directed by Schneider_31',
@@ -218,9 +264,39 @@ export const translations = {
     waiting: 'Attente',
     statusDealing: 'Distribution',
     dealt: 'Distribué',
+
+    // Game control (host tools)
+    gameControl: 'Déroulement',
+    nightN: 'Nuit {n}',
+    dayN: 'Jour {n}',
+    lobbyWaiting: 'Les cartes sont distribuées. Lancez la partie quand tout le monde est prêt',
+    startNight: 'Commencer la nuit {n}',
+    startDay: 'Commencer le jour',
+    statWolves: 'Loups',
+    statVillage: 'Village',
+    statAlive: 'Vivants',
+    aliveNow: 'Encore en vie',
+    winVillage: 'Le village semble avoir gagné (indicatif)',
+    winWolves: 'Les loups semblent avoir gagné (indicatif)',
+    nightGuideTitle: 'Guide de la nuit',
+    nightGuideHint: 'Appelez les rôles dans l’ordre et touchez chaque étape une fois terminée',
+    nightGuideDone: 'Tous les rôles ont été appelés. Appuyez sur « Commencer le jour »',
+    nightGuideEmpty: 'Aucun rôle à appeler cette nuit. Appuyez sur « Commencer le jour »',
+    customRolesNote: 'Rôles personnalisés : placez-les selon vos règles',
+    dayGuideTitle: 'Le jour',
+    dayGuide: 'Annoncez les morts de la nuit, puis débat et vote. Marquez les éliminés avec le bouton crâne de la liste.',
+    eliminate: 'Éliminer',
+    revive: 'Réanimer',
+    deadLabel: 'Éliminé',
+    diedTitle: 'Vous êtes éliminé(e)',
+    diedDesc: 'Continuez à suivre la partie en silence ; ne révélez votre rôle que si le Maître le demande',
+    playerNight: 'Nuit {n} : fermez les yeux',
+    playerDay: 'Jour {n} : ouvrez les yeux',
+    feedbackOn: 'Son et vibration : activés',
+    feedbackOff: 'Son et vibration : coupés',
   },
 } as const;
 
-type FlatTranslationKey = keyof Omit<typeof translations.fr, 'roles' | 'roleDescriptions'>;
+type FlatTranslationKey = keyof Omit<typeof translations.fr, 'roles' | 'roleDescriptions' | 'nightInstructions'>;
 
 export type TranslationKey = FlatTranslationKey;

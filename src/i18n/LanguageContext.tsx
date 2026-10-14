@@ -7,6 +7,8 @@ interface LanguageContextValue {
   t: (key: TranslationKey) => string;
   tRole: (key: string) => string;
   tRoleDesc: (key: string) => string;
+  /** Instruction the Master reads out when this role wakes up at night. */
+  tNight: (key: string) => string;
   dir: 'rtl' | 'ltr';
 }
 
@@ -48,8 +50,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return descs?.[key] ?? key;
   };
 
+  const tNight = (key: string): string => {
+    const tr = translations[lang] as Record<string, unknown>;
+    const texts = tr.nightInstructions as Record<string, string>;
+    return texts?.[key] ?? '';
+  };
+
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t, tRole, tRoleDesc, dir }}>
+    <LanguageContext.Provider value={{ lang, setLang, t, tRole, tRoleDesc, tNight, dir }}>
       {children}
     </LanguageContext.Provider>
   );
