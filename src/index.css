@@ -98,9 +98,34 @@
     box-shadow: 0 0 20px rgba(61, 96, 144, 0.3), 0 0 60px rgba(61, 96, 144, 0.1);
   }
 
+  .animate-reveal-pop {
+    animation: revealPop 0.55s ease-out both;
+  }
+
   .glass {
     background: rgba(20, 20, 37, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+@keyframes revealPop {
+  0% {
+    transform: scale(0.94);
+    filter: brightness(0.7);
+  }
+  60% {
+    transform: scale(1.025);
+    filter: brightness(1.25);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal-pop {
+    animation: none;
   }
 }
