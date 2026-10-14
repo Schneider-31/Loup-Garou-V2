@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/lib/supabase';
-import { getRoleByKey, makeCustomRole } from '@/data/roles';
+import { getRoleByKey, makeCustomRole, CARD_GRADIENT, CARD_GLOW } from '@/data/roles';
 import type { Player, Room } from '@/types';
 import { clearSession } from '@/lib/session';
 import { SoundToggle } from '@/components/SoundToggle';
@@ -314,7 +314,7 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
             {/* Card Back (hidden when revealed) */}
             <div className="backface-hidden absolute inset-0">
               <div
-                className={`w-full h-full rounded-3xl border-2 bg-gradient-to-br ${roleDef.gradient} border-mystery-500/40 overflow-hidden relative ${holding ? roleDef.glow : ''} transition-shadow duration-300`}
+                className={`w-full h-full rounded-3xl border-2 bg-gradient-to-br ${CARD_GRADIENT} border-mystery-500/40 overflow-hidden relative ${holding ? CARD_GLOW : ''} transition-shadow duration-300`}
               >
                 <div className="bg-card-grain absolute inset-0" />
 
@@ -328,7 +328,7 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
                 />
 
                 <div className="relative h-full flex flex-col items-center justify-center p-6 no-select">
-                  <Moon className={`w-16 h-16 ${roleDef.accent} mb-4 ${holding ? 'animate-pulse' : 'animate-float'}`} strokeWidth={1} />
+                  <Moon className={`w-16 h-16 text-moon-300 mb-4 ${holding ? 'animate-pulse' : 'animate-float'}`} strokeWidth={1} />
 
                   <div className="mt-4 text-center">
                     <p className="text-sm font-display font-semibold text-ash-200 mb-2">
@@ -381,7 +381,7 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
                   {/* Icon */}
                   <div className="flex-1 flex items-center justify-center">
                     <div className="relative">
-                      <div className={`absolute inset-0 blur-2xl ${roleDef.isWolf ? 'bg-blood-500/20' : 'bg-gold-500/20'} rounded-full`} />
+                      <div className={`absolute inset-0 blur-2xl bg-gold-500/20 rounded-full`} />
                       <Icon className={`relative w-24 h-24 ${roleDef.accent}`} strokeWidth={1} />
                     </div>
                   </div>
