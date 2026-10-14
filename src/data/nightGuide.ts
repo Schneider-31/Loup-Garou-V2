@@ -7,14 +7,13 @@ import type { Player } from '@/types';
  */
 export interface NightStep {
   roleKey: string;
-  /** Only called on night 1 (e.g. Cupidon). */
+  /** Only called on night 1. */
   firstNightOnly?: boolean;
   /** Only called on even nights: 2, 4, 6... (e.g. Loup Blanc). */
   evenNightsOnly?: boolean;
 }
 
 export const NIGHT_STEPS: NightStep[] = [
-  { roleKey: 'cupidon', firstNightOnly: true },
   { roleKey: 'protecteur' },
   { roleKey: 'voyante' },
   { roleKey: 'loup_garou' },
