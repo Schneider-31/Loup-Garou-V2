@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/lib/supabase';
 import { BUILTIN_ROLES, getRoleByKey } from '@/data/roles';
-import type { Room, Player, RoleConfigEntry } from '@/types';
+import type { Room, Player, RoleConfigEntry, GamePhase } from '@/types';
 import {
   ArrowLeft,
   Users,
@@ -16,8 +16,11 @@ import {
   Trash2,
   Copy,
   CheckCheck,
+  Skull,
+  HeartPulse,
 } from 'lucide-react';
 import { CustomRoleBuilder } from '@/components/CustomRoleBuilder';
+import { GamePanel } from '@/components/GamePanel';
 import { clearSession } from '@/lib/session';
 
 interface HostDashboardScreenProps {
@@ -34,6 +37,7 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
   const [dealing, setDealing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [phaseBusy, setPhaseBusy] = useState(false);
 
   // Keep a ref to the latest roleConfig so rapid clicks don't read a stale snapshot.
   const roleConfigRef = useRef<RoleConfigEntry[]>([]);
@@ -264,6 +268,39 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
     loadPlayers();
   };
 
+  // Night / day switch. The room row is shared in real time, so every player's
+  // phone shows the change as soon as it is saved.
+  const handleSetPhase = async (phase: GamePhase, round: number) => {
+    if (!room || phaseBusy) return;
+    setPhaseBusy(true);
+    setError('');
+    const previous = room;
+    setRoom({ ...room, phase, round_number: round });
+    const { error: phaseError } = await supabase
+      .from('rooms')
+      .update({ phase, round_number: round, updated_at: new Date().toISOString() })
+      .eq('id', roomId);
+    if (phaseError) {
+      setRoom(previous);
+      setError(phaseError.message);
+    }
+    setPhaseBusy(false);
+  };
+
+  // Mark a player as eliminated (or bring him back after a mistake).
+  const handleToggleAlive = async (player: Player) => {
+    const nextAlive = !player.is_alive;
+    setPlayers((prev) => prev.map((p) => (p.id === player.id ? { ...p, is_alive: nextAlive } : p)));
+    const { error: aliveError } = await supabase
+      .from('players')
+      .update({ is_alive: nextAlive, updated_at: new Date().toISOString() })
+      .eq('id', player.id);
+    if (aliveError) {
+      setPlayers((prev) => prev.map((p) => (p.id === player.id ? { ...p, is_alive: !nextAlive } : p)));
+      setError(aliveError.message);
+    }
+  };
+
   const copyCode = () => {
     if (room) {
       navigator.clipboard.writeText(room.code);
@@ -310,6 +347,11 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
         </div>
       )}
 
+      {/* Host tools: night/day, counters, night guide */}
+      {room && isDealt && (
+        <GamePanel room={room} players={players} busy={phaseBusy} onSetPhase={handleSetPhase} />
+      )}
+
       {/* Players section */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
@@ -332,12 +374,29 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
               return (
                 <div
                   key={player.id}
-                  className="flex items-center gap-3 rounded-xl border border-mystery-700/50 bg-mystery-800/40 p-3 animate-fade-in"
+                  className={`flex items-center gap-3 rounded-xl border border-mystery-700/50 bg-mystery-800/40 p-3 animate-fade-in ${
+                    isDealt && !player.is_alive ? 'opacity-50' : ''
+                  }`}
                 >
                   <div className="w-8 h-8 rounded-lg bg-mystery-700/60 border border-mystery-600/40 flex items-center justify-center text-xs font-semibold text-ash-300">
                     {idx + 1}
                   </div>
-                  <span className="flex-1 text-sm text-ash-100 truncate">{player.name}</span>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className={`text-sm truncate ${
+                        isDealt && !player.is_alive ? 'text-ash-400 line-through' : 'text-ash-100'
+                      }`}
+                    >
+                      {player.name}
+                    </p>
+                    {hasRole && (
+                      <p className="text-[10px] text-ash-400 truncate">
+                        {player.assigned_custom_title != null
+                          ? player.assigned_custom_title
+                          : tRole(player.assigned_role!)}
+                      </p>
+                    )}
+                  </div>
                   {hasRole ? (
                     <span className="text-xs text-ash-400">
                       {player.has_seen_card ? (
@@ -352,14 +411,33 @@ export function HostDashboardScreen({ roomId, onBack }: HostDashboardScreenProps
                       {roleDef.icon && <roleDef.icon className="w-3.5 h-3.5" />}
                     </span>
                   )}
-                  <button
-                    onClick={() => handleKick(player.id)}
-                    title={t('kickPlayer')}
-                    aria-label={t('kickPlayer')}
-                    className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-ash-500 transition-all hover:text-blood-300 hover:bg-blood-900/30 active:scale-95"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
+                  {isDealt ? (
+                    <button
+                      onClick={() => handleToggleAlive(player)}
+                      title={player.is_alive ? t('eliminate') : t('revive')}
+                      aria-label={player.is_alive ? t('eliminate') : t('revive')}
+                      className={`w-8 h-8 shrink-0 rounded-lg border flex items-center justify-center transition-all active:scale-95 ${
+                        player.is_alive
+                          ? 'border-blood-800/40 bg-blood-900/20 text-blood-300 hover:bg-blood-900/40'
+                          : 'border-forest-600/40 bg-forest-800/20 text-forest-500 hover:bg-forest-800/40'
+                      }`}
+                    >
+                      {player.is_alive ? (
+                        <Skull className="w-4 h-4" />
+                      ) : (
+                        <HeartPulse className="w-4 h-4" />
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleKick(player.id)}
+                      title={t('kickPlayer')}
+                      aria-label={t('kickPlayer')}
+                      className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-ash-500 transition-all hover:text-blood-300 hover:bg-blood-900/30 active:scale-95"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               );
             })}

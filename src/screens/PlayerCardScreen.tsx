@@ -4,6 +4,13 @@ import { supabase } from '@/lib/supabase';
 import { getRoleByKey, makeCustomRole } from '@/data/roles';
 import type { Player, Room } from '@/types';
 import { clearSession } from '@/lib/session';
+import { SoundToggle } from '@/components/SoundToggle';
+import {
+  feedbackDealt,
+  feedbackEliminated,
+  feedbackPhaseChange,
+  feedbackReveal,
+} from '@/lib/feedback';
 import {
   Loader2,
   Eye,
@@ -12,6 +19,8 @@ import {
   Moon,
   Hourglass,
   LogOut,
+  Sun,
+  Skull,
 } from 'lucide-react';
 
 interface PlayerCardScreenProps {
@@ -120,6 +129,7 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
     setHolding(true);
     holdTimerRef.current = window.setTimeout(() => {
       setRevealed(true);
+      feedbackReveal();
       markSeen();
     }, 600);
   };
@@ -139,6 +149,27 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
     };
   }, []);
+
+  // Vibrations / sounds when something changes on this phone. The first load
+  // (for example after a page refresh) only records the state and stays silent.
+  const prevHadRole = useRef<boolean | null>(null);
+  const prevAlive = useRef<boolean | null>(null);
+  const prevPhase = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!player) return;
+    const hasRoleNow = !!player.assigned_role;
+    if (prevHadRole.current === false && hasRoleNow) feedbackDealt();
+    prevHadRole.current = hasRoleNow;
+    if (prevAlive.current === true && !player.is_alive) feedbackEliminated();
+    prevAlive.current = player.is_alive;
+  }, [player]);
+
+  useEffect(() => {
+    if (!room) return;
+    if (prevPhase.current !== null && prevPhase.current !== room.phase) feedbackPhaseChange();
+    prevPhase.current = room.phase;
+  }, [room]);
 
   const handleLeave = async () => {
     await supabase.from('players').delete().eq('id', playerId);
@@ -169,12 +200,15 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
               <p className="text-[11px] text-ash-400">{t('joinGame')}</p>
             </div>
           </div>
-          <button
-            onClick={handleLeave}
-            className="w-9 h-9 rounded-lg border border-mystery-600/60 bg-mystery-800/50 flex items-center justify-center text-ash-300 transition-all hover:border-blood-600/40 hover:text-blood-400 active:scale-95"
-          >
-            <LogOut className="w-4 h-4 rtl:rotate-180" />
-          </button>
+          <div className="flex items-center gap-2">
+            <SoundToggle />
+            <button
+              onClick={handleLeave}
+              className="w-9 h-9 rounded-lg border border-mystery-600/60 bg-mystery-800/50 flex items-center justify-center text-ash-300 transition-all hover:border-blood-600/40 hover:text-blood-400 active:scale-95"
+            >
+              <LogOut className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center text-center">
@@ -217,18 +251,53 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
           <h1 className="font-display text-lg font-semibold text-gold-200">{player.name}</h1>
           <p className="text-[11px] text-ash-400">{t('yourRole')}</p>
         </div>
-        <button
-          onClick={handleLeave}
-          className="w-9 h-9 rounded-lg border border-mystery-600/60 bg-mystery-800/50 flex items-center justify-center text-ash-300 transition-all hover:border-blood-600/40 hover:text-blood-400 active:scale-95"
-        >
-          <LogOut className="w-4 h-4 rtl:rotate-180" />
-        </button>
+        <div className="flex items-center gap-2">
+          <SoundToggle />
+          <button
+            onClick={handleLeave}
+            className="w-9 h-9 rounded-lg border border-mystery-600/60 bg-mystery-800/50 flex items-center justify-center text-ash-300 transition-all hover:border-blood-600/40 hover:text-blood-400 active:scale-95"
+          >
+            <LogOut className="w-4 h-4 rtl:rotate-180" />
+          </button>
+        </div>
       </div>
+
+      {/* Game state: night / day, and elimination */}
+      {room && room.phase !== 'lobby' && (
+        <div
+          className={`mb-4 rounded-xl border p-3 text-center animate-fade-in ${
+            room.phase === 'night'
+              ? 'border-moon-700/40 bg-moon-900/30'
+              : 'border-gold-700/40 bg-gold-900/20'
+          }`}
+        >
+          <p
+            className={`text-sm font-semibold flex items-center justify-center gap-2 ${
+              room.phase === 'night' ? 'text-moon-200' : 'text-gold-200'
+            }`}
+          >
+            {room.phase === 'night' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {(room.phase === 'night' ? t('playerNight') : t('playerDay')).replace(
+              '{n}',
+              String(room.round_number),
+            )}
+          </p>
+        </div>
+      )}
+      {!player.is_alive && (
+        <div className="mb-4 rounded-xl border border-blood-700/40 bg-blood-900/30 p-3 text-center animate-fade-in">
+          <p className="text-sm font-semibold text-blood-300 flex items-center justify-center gap-2">
+            <Skull className="w-4 h-4" />
+            {t('diedTitle')}
+          </p>
+          <p className="text-[11px] text-ash-300 mt-1">{t('diedDesc')}</p>
+        </div>
+      )}
 
       {/* Card area */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <div
-          className="perspective-1000 select-none"
+          className={`perspective-1000 select-none ${!player.is_alive ? 'grayscale opacity-80' : ''}`}
           onPointerDown={startHold}
           onPointerUp={endHold}
           onPointerLeave={endHold}
@@ -296,7 +365,9 @@ export function PlayerCardScreen({ roomId, playerId, onLeave }: PlayerCardScreen
             {/* Card Front (visible when revealed) */}
             <div className="backface-hidden rotate-y-180 absolute inset-0">
               <div
-                className={`w-full h-full rounded-3xl border-2 bg-gradient-to-br ${roleDef.gradient} border-gold-500/40 overflow-hidden relative ${roleDef.glow}`}
+                className={`w-full h-full rounded-3xl border-2 bg-gradient-to-br ${roleDef.gradient} border-gold-500/40 overflow-hidden relative ${roleDef.glow} ${
+                  revealed ? 'animate-reveal-pop' : ''
+                }`}
               >
                 <div className="bg-card-grain absolute inset-0" />
 
