@@ -90,7 +90,7 @@ export const translations = {
       sorciere: 'الاحارقة',
       voyante: 'العرافة',
       loup_blanc: 'الذئب الأبيض',
-      cupidon: 'كيوپيد',
+      chasseur: 'الصياد',
     },
     roleDescriptions: {
       villageois: 'قروي عادي. يحاول النجاة وكشف الذئاب عبر التصويت.',
@@ -99,10 +99,9 @@ export const translations = {
       sorciere: 'تمتلك جرعة موت وجرعة حياة. يمكنها إنقاذ أو قتل لاعباً.',
       voyante: 'تكتشف هوية لاعب واحد كل ليلة.',
       loup_blanc: 'ذئب خاص. يقتل لاعباً إضافياً في الليل دون علم باقي الذئاب.',
-      cupidon: 'يربط قلبين بالحب الأبدي من أول ليلة.',
+      chasseur: 'عندما يموت، يطلق رصاصته الأخيرة ويقتل لاعباً من اختياره.',
     },
     nightInstructions: {
-      cupidon: 'يستيقظ ويختار لاعبَين ليكونا عاشقَين، ثم يغمض عينيه. اجعل العاشقَين يفتحان أعينهما لحظة ليتعارفا ثم يغمضانها.',
       protecteur: 'يستيقظ ويختار لاعباً يحميه هذه الليلة (لا يحمي نفس اللاعب ليلتين متتاليتين)، ثم يغمض عينيه.',
       voyante: 'تستيقظ وتشير إلى لاعب، فتريها دوره بإشارة من يدك، ثم تغمض عينيها.',
       loup_garou: 'يستيقظ الذئاب ويتفقون بصمت على ضحية، ثم يغمضون أعينهم.',
@@ -237,7 +236,7 @@ export const translations = {
       sorciere: 'Sorcière',
       voyante: 'Voyante',
       loup_blanc: 'Loup Blanc',
-      cupidon: 'Cupidon',
+      chasseur: 'Chasseur',
     },
     roleDescriptions: {
       villageois: 'Villageois ordinaire. Tente de survivre et de démasquer les loups en votant.',
@@ -246,10 +245,9 @@ export const translations = {
       sorciere: 'Possède une potion de mort et une de vie. Peut sauver ou tuer un joueur.',
       voyante: 'Découvre l\'identité d\'un joueur chaque nuit.',
       loup_blanc: 'Loup spécial. Tue un joueur supplémentaire la nuit à l\'insu des autres loups.',
-      cupidon: 'Unit deux cœurs par un amour éternel dès la première nuit.',
+      chasseur: 'Quand il meurt, il tire une dernière balle et élimine un joueur de son choix.',
     },
     nightInstructions: {
-      cupidon: 'Se réveille et désigne deux amoureux, puis se rendort. Les amoureux ouvrent les yeux un instant pour se reconnaître.',
       protecteur: 'Se réveille et désigne un joueur à protéger cette nuit (pas deux nuits de suite le même), puis se rendort.',
       voyante: 'Se réveille et désigne un joueur ; montrez-lui son rôle d’un geste, puis elle se rendort.',
       loup_garou: 'Les loups se réveillent, désignent une victime en silence, puis se rendorment.',
